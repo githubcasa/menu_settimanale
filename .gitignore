@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.env
+ZZ_BCKUP/
+ZZ_BCKUP2/
+*.old
