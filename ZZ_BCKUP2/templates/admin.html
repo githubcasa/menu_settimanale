@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestione Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 40px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .info-text {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 1000px;
+            margin: 50px auto;
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        /* Menu Preview */
+        .menu-preview {
+            margin-top: 20px;
+        }
+
+        .day-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .day-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .day-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .meal-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 250px;
+            gap: 15px;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .meal-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .meal-info {
+            font-size: 0.95em;
+        }
+
+        .meal-category {
+            color: #999;
+            font-size: 0.85em;
+            font-style: italic;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .frequencies-report {
+            background: #e8f5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .frequency-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #c8e6c9;
+        }
+
+        .frequency-item:last-child {
+            border-bottom: none;
+        }
+
+        .freq-ok {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .freq-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🔧 Pannello Admin</h1>
+            <div class="header-buttons">
+                <a href="/ingredienti" class="back-btn">🏷️ Ingredienti</a>
+                <a href="/valida_csv" class="back-btn">🔍 Valida CSV</a>
+                <a href="/" class="back-btn">← Menu</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- GENERATORE MENU SETTIMANALE -->
+        <div class="section-card">
+            <h2 class="section-title">📅 Generatore Menu Settimanali Bilanciati</h2>
+            <p class="info-text">
+                Genera automaticamente un menu settimanale (7 giorni) che rispetta le frequenze nutrizionali 
+                dello schema alimentare. Potrai modificare i piatti e scegliere la data di inizio prima di salvare.
+            </p>
+            <button onclick="generaMenuSettimanale()" class="btn btn-success" id="btnGenera">
+                ✨ Genera Nuovo Menu Settimanale
+            </button>
+        </div>
+
+        <!-- STATISTICHE -->
+        <div class="section-card">
+            <h2 class="section-title">📊 Statistiche</h2>
+            <p class="info-text">
+                Le statistiche delle votazioni sono disponibili nella pagina dedicata.
+            </p>
+            <a href="/admin" class="btn btn-primary">Vai alle Statistiche</a>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW MENU -->
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="chiudiModal()">&times;</span>
+            <h2>📅 Anteprima Menu Settimanale</h2>
+
+            <div class="form-group">
+                <label for="dataInizio">Data di Inizio (Lunedì):</label>
+                <input type="date" id="dataInizio" onchange="aggiornaDate()">
+            </div>
+
+            <div id="menuPreview"></div>
+
+            <div class="action-buttons">
+                <button onclick="chiudiModal()" class="btn btn-secondary">
+                    Annulla
+                </button>
+                <button onclick="rigeneraMenu()" class="btn btn-primary">
+                    🔄 Rigenera Menu
+                </button>
+                <button onclick="salvaMenu()" class="btn btn-success">
+                    💾 Salva nel Database
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let menuCorrente = null;
+        let piattiPerCategoria = {};
+
+        async function generaMenuSettimanale() {
+            const btn = document.getElementById('btnGenera');
+            btn.disabled = true;
+            btn.textContent = '⏳ Generazione in corso...';
+
+            try {
+                const response = await fetch('/api/genera_menu_settimanale', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    menuCorrente = data;
+                    await caricaPiattiPerCategoria();
+                    mostraPreview(data);
+                } else {
+                    alert('Errore: ' + (data.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('Errore nella generazione del menu');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ Genera Nuovo Menu Settimanale';
+            }
+        }
+
+        async function caricaPiattiPerCategoria() {
+            try {
+                const response = await fetch('/api/piatti_per_categoria');
+                const data = await response.json();
+                if (data.success) {
+                    piattiPerCategoria = data.piatti;
+                }
+            } catch (error) {
+                console.error('Errore caricamento piatti:', error);
+            }
+        }
+
+        function mostraPreview(data) {
+            const modal = document.getElementById('menuModal');
+            const dataInput = document.getElementById('dataInizio');
+            const preview = document.getElementById('menuPreview');
+
+            dataInput.value = data.data_inizio;
+
+            let html = '<div class="frequencies-report">';
+            html += '<h3>📊 Verifica Frequenze</h3>';
+
+            const schema = {
+                'legumi': {min: 2, max: 2},
+                'uova': {min: 0, max: 2},
+                'carne_bianca': {min: 0, max: 3},
+                'carne_rossa': {min: 0, max: 2},
+                'formaggi_freschi': {min: 0, max: 3},
+                'formaggi_stagionati': {min: 0, max: 1},
+                'pesce_bianco': {min: 2, max: 4},
+                'pesce_grasso': {min: 0, max: 1},
+                'crostacei_molluschi': {min: 0, max: 1},
+                'tonno_scatola': {min: 0, max: 1},
+                'affettati': {min: 0, max: 1}
+            };
+
+            for (const [cat, limiti] of Object.entries(schema)) {
+                const count = data.conteggi[cat] || 0;
+                const target = limiti.min === limiti.max ? limiti.min : `${limiti.min}-${limiti.max}`;
+                const classe = (count < limiti.min || count > limiti.max) ? 'freq-error' : 'freq-ok';
+                const icona = (count < limiti.min || count > limiti.max) ? '❌' : '✅';
+
+                html += `<div class="frequency-item">
+                    <span>${icona} ${cat.replace(/_/g, ' ')}</span>
+                    <span class="${classe}">${count} / ${target}</span>
+                </div>`;
+            }
+
+            html += '</div><div class="menu-preview">';
+
+            data.menu.forEach((giorno, idx) => {
+                html += `<div class="day-card">
+                    <div class="day-header">
+                        <div class="day-name">${giorno.giorno}</div>
+                        <div class="day-date" id="date_${idx}">${formatDate(giorno.data)}</div>
+                    </div>
+
+                    <div class="meal-row">
+                        <div class="meal-label">🍽️ Pranzo</div>
+                        <div class="meal-info">
+                            <div id="nome_p_${idx}">${giorno.pranzo.nome}</div>
+                            <div class="meal-category">${giorno.pranzo.categoria_proteica}</div>
+                        </div>
+                        <select id="sel_p_${idx}" onchange="cambiaPiatto(${idx}, 'pranzo')">
+                            ${opzioniPiatti(giorno.pranzo.categoria_proteica, giorno.pranzo.id)}
+                        </select>
+                    </div>
+
+                    <div class="meal-row">
+                        <div class="meal-label">🌙 Cena</div>
+                        <div class="meal-info">
+                            <div id="nome_c_${idx}">${giorno.cena.nome}</div>
+                            <div class="meal-category">${giorno.cena.categoria_proteica}</div>
+                        </div>
+                        <select id="sel_c_${idx}" onchange="cambiaPiatto(${idx}, 'cena')">
+                            ${opzioniPiatti(giorno.cena.categoria_proteica, giorno.cena.id)}
+                        </select>
+                    </div>
+                </div>`;
+            });
+
+            html += '</div>';
+            preview.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        function opzioniPiatti(categoria, idSelezionato) {
+            let html = '';
+            if (categoria && piattiPerCategoria[categoria]) {
+                piattiPerCategoria[categoria].forEach(piatto => {
+                    const selected = piatto.id == idSelezionato ? 'selected' : '';
+                    html += `<option value="${piatto.id}" ${selected}>${piatto.nome}</option>`;
+                });
+            } else {
+                for (const cat in piattiPerCategoria) {
+                    piattiPerCategoria[cat].forEach(piatto => {
+                        const selected = piatto.id == idSelezionato ? 'selected' : '';
+                        html += `<option value="${piatto.id}" ${selected}>${piatto.nome}</option>`;
+                    });
+                }
+            }
+            return html;
+        }
+
+        function cambiaPiatto(giornoIdx, tipo) {
+            const select = document.getElementById(`sel_${tipo[0]}_${giornoIdx}`);
+            const nuovoId = parseInt(select.value);
+            const nuovoNome = select.options[select.selectedIndex].text;
+
+            menuCorrente.menu[giornoIdx][tipo].id = nuovoId;
+            menuCorrente.menu[giornoIdx][tipo].nome = nuovoNome;
+
+            document.getElementById(`nome_${tipo[0]}_${giornoIdx}`).textContent = nuovoNome;
+        }
+
+        function aggiornaDate() {
+            const dataInizio = document.getElementById('dataInizio').value;
+            if (!dataInizio) return;
+
+            const data = new Date(dataInizio);
+            menuCorrente.menu.forEach((giorno, idx) => {
+                const nuovaData = new Date(data);
+                nuovaData.setDate(data.getDate() + idx);
+
+                const dataISO = nuovaData.toISOString().split('T')[0];
+                menuCorrente.menu[idx].data = dataISO;
+
+                const el = document.getElementById(`date_${idx}`);
+                if (el) el.textContent = formatDate(dataISO);
+            });
+        }
+
+        async function rigeneraMenu() {
+            if (confirm('Rigenerare il menu? Le modifiche andranno perse.')) {
+                chiudiModal();
+                await generaMenuSettimanale();
+            }
+        }
+
+        async function salvaMenu() {
+            if (!menuCorrente || !confirm('Salvare questo menu nel database?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/salva_menu_settimanale', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({menu: menuCorrente.menu})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ ' + data.messaggio);
+                    chiudiModal();
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                alert('Errore nel salvataggio');
+            }
+        }
+
+        function chiudiModal() {
+            document.getElementById('menuModal').style.display = 'none';
+            menuCorrente = null;
+        }
+
+        function formatDate(dataISO) {
+            const [anno, mese, giorno] = dataISO.split('-');
+            return `${giorno}/${mese}/${anno}`;
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('menuModal');
+            if (event.target === modal) {
+                chiudiModal();
+            }
+        }
+    </script>
+</body>
+</html>

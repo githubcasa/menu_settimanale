@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valida CSV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 40px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        h1 {
+            font-size: 24px;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .info-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .info-text {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .warning-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .warning-text {
+            color: #856404;
+            font-size: 14px;
+        }
+        
+        .validate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        
+        .validate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .validate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .results-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: none;
+        }
+        
+        .results-card.visible {
+            display: block;
+        }
+        
+        .results-card.success {
+            border-left: 4px solid #28a745;
+        }
+        
+        .results-card.error {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .results-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .results-title.success {
+            color: #28a745;
+        }
+        
+        .results-title.error {
+            color: #dc3545;
+        }
+        
+        .results-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .results-summary div {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .results-summary strong {
+            color: #333;
+        }
+        
+        .error-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .error-item {
+            padding: 8px;
+            margin-bottom: 6px;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .error-item.fix {
+            border-left: 3px solid #28a745;
+        }
+        
+        .error-item.warning {
+            border-left: 3px solid #ffc107;
+        }
+        
+        .error-item.error {
+            border-left: 3px solid #dc3545;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ff6b6b;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .checks-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .check-item {
+            padding: 8px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .check-item::before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🔍 Validazione File CSV</h1>
+            <div class="header-buttons">
+                <a href="/ingredienti" class="back-btn">🛒 Lista Spesa</a>
+                <a href="/admin" class="back-btn">📊 Statistiche</a>
+                <a href="/" class="back-btn">← Menu</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="info-card">
+            <div class="info-title">📋 Cosa fa questo strumento?</div>
+            <div class="info-text">
+                Questo strumento analizza il file <strong>menu_database.csv</strong> e corregge automaticamente 
+                gli errori comuni che potrebbero impedire il corretto funzionamento dell'applicazione.
+            </div>
+            
+            <div class="checks-list">
+                <div style="font-weight: 600; margin-bottom: 10px; color: #333;">Controlli effettuati:</div>
+                <div class="check-item">Rimozione spazi extra prima e dopo i valori</div>
+                <div class="check-item">Rimozione caratteri invisibili (BOM)</div>
+                <div class="check-item">Standardizzazione formato date</div>
+                <div class="check-item">Correzione formato prezzi</div>
+                <div class="check-item">Validazione campo "attivo" (SI/NO)</div>
+                <div class="check-item">Pulizia liste ingredienti e quantità</div>
+                <div class="check-item">Verifica coerenza numero ingredienti/quantità</div>
+                <div class="check-item">Rimozione righe vuote</div>
+                <div class="check-item">Correzione intestazione (header)</div>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Importante</div>
+                <div class="warning-text">
+                    Prima di procedere, verrà creato automaticamente un <strong>backup</strong> del file originale 
+                    con estensione <code>.backup</code>. In caso di problemi potrai ripristinare il file originale.
+                </div>
+            </div>
+            
+            <button class="validate-btn" id="validateBtn" onclick="validaCsv()">
+                🔍 Avvia Validazione e Correzione
+            </button>
+        </div>
+        
+        <div class="results-card" id="resultsCard">
+            <div class="results-title" id="resultsTitle">Risultati</div>
+            
+            <div class="results-summary" id="resultsSummary"></div>
+            
+            <div id="errorsList"></div>
+        </div>
+    </div>
+    
+    <script>
+        async function validaCsv() {
+            const button = document.getElementById('validateBtn');
+            const resultsCard = document.getElementById('resultsCard');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsSummary = document.getElementById('resultsSummary');
+            const errorsList = document.getElementById('errorsList');
+            
+            // Reset
+            resultsCard.classList.remove('visible', 'success', 'error');
+            resultsTitle.classList.remove('success', 'error');
+            
+            // Loading
+            button.textContent = '⏳ Validazione in corso...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/valida_csv', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Successo
+                    resultsCard.classList.add('visible', 'success');
+                    resultsTitle.classList.add('success');
+                    resultsTitle.textContent = '✅ Validazione Completata!';
+                    
+                    resultsSummary.innerHTML = `
+                        <div><strong>Righe processate:</strong> ${data.righe_processate}</div>
+                        <div><strong>Problemi rilevati e corretti:</strong> ${data.errori_trovati}</div>
+                        ${data.backup_file ? `<div><strong>File backup:</strong> ${data.backup_file}</div>` : ''}
+                    `;
+                    
+                    if (data.dettagli && data.dettagli.length > 0) {
+                        let errorsHtml = '<div style="font-weight: 600; margin-bottom: 10px; color: #333;">📝 Dettaglio modifiche:</div>';
+                        errorsHtml += '<div class="error-list">';
+                        
+                        data.dettagli.forEach(errore => {
+                            let className = 'fix';
+                            if (errore.includes('❌')) className = 'error';
+                            else if (errore.includes('⚠️')) className = 'warning';
+                            
+                            errorsHtml += `<div class="error-item ${className}">${errore}</div>`;
+                        });
+                        
+                        errorsHtml += '</div>';
+                        errorsList.innerHTML = errorsHtml;
+                    } else {
+                        errorsList.innerHTML = '<div style="padding: 15px; text-align: center; color: #28a745;">✨ Nessun errore trovato! Il file CSV è perfetto.</div>';
+                    }
+                    
+                    // Suggerisci ricarica
+                    setTimeout(() => {
+                        if (confirm('✅ Validazione completata! Vuoi ricaricare la pagina per applicare le modifiche?')) {
+                            window.location.href = '/';
+                        }
+                    }, 1000);
+                    
+                } else {
+                    // Errore
+                    resultsCard.classList.add('visible', 'error');
+                    resultsTitle.classList.add('error');
+                    resultsTitle.textContent = '❌ Errore durante la validazione';
+                    
+                    resultsSummary.innerHTML = `
+                        <div style="color: #dc3545;"><strong>Errore:</strong> ${data.error}</div>
+                    `;
+                    
+                    errorsList.innerHTML = '';
+                }
+                
+            } catch (error) {
+                console.error('Errore:', error);
+                
+                resultsCard.classList.add('visible', 'error');
+                resultsTitle.classList.add('error');
+                resultsTitle.textContent = '❌ Errore di connessione';
+                
+                resultsSummary.innerHTML = `
+                    <div style="color: #dc3545;">Si è verificato un errore durante la comunicazione con il server.</div>
+                `;
+                
+                errorsList.innerHTML = '';
+            } finally {
+                button.textContent = '🔍 Avvia Validazione e Correzione';
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

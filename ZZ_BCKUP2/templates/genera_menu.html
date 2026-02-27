@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genera Menu Settimanale</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding-bottom: 40px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        h1 { font-size: 24px; }
+        .header-buttons { display: flex; gap: 10px; }
+        .back-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 13px; transition: background 0.3s; }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .info-card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .info-title { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 15px; }
+        .info-text { color: #666; line-height: 1.6; margin-bottom: 15px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+        input[type="date"] { width: 100%; max-width: 300px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; }
+        .btn { padding: 16px 24px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .menu-preview { background: white; border-radius: 15px; padding: 25px; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: none; }
+        .menu-preview.visible { display: block; }
+        .frequencies-report { background: #e8f5e9; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+        .frequencies-report.has-errors { background: #ffebee; border: 2px solid #f44336; }
+        .frequency-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #c8e6c9; }
+        .frequencies-report.has-errors .frequency-item { border-bottom: 1px solid #ffcdd2; }
+        .frequency-item:last-child { border-bottom: none; }
+        .freq-ok { color: #28a745; font-weight: bold; }
+        .freq-error { color: #dc3545; font-weight: bold; animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .error-banner { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .error-banner.visible { display: block; }
+        .error-banner-title { font-weight: 600; color: #856404; margin-bottom: 8px; font-size: 16px; }
+        .error-banner-text { color: #856404; font-size: 14px; }
+        .day-card { background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #667eea; }
+        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; }
+        .day-name { font-size: 1.2em; font-weight: bold; color: #667eea; }
+        .day-date { color: #666; font-size: 0.9em; }
+        .meal-row { display: grid; grid-template-columns: 80px 1fr 350px; gap: 15px; align-items: center; padding: 10px; background: white; border-radius: 8px; margin-bottom: 8px; border: 2px solid transparent; transition: all 0.3s; }
+        .meal-row.meal-error-over { background: #ffebee; border: 2px solid #f44336; box-shadow: 0 0 10px rgba(244, 67, 54, 0.3); }
+        .meal-row.meal-error-under { background: #fff3e0; border: 2px solid #ff9800; box-shadow: 0 0 10px rgba(255, 152, 0, 0.3); }
+        .meal-label { font-weight: 600; color: #667eea; }
+        .meal-row.meal-error-over .meal-label { color: #f44336; }
+        .meal-row.meal-error-under .meal-label { color: #ff9800; }
+        .meal-info { font-size: 0.95em; }
+        .meal-category { color: #999; font-size: 0.85em; font-style: italic; }
+        .meal-row.meal-error-over .meal-category, .meal-row.meal-error-under .meal-category { font-weight: 600; }
+        select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; cursor: pointer; transition: border-color 0.3s; }
+        select:focus { outline: none; border-color: #667eea; }
+        .action-buttons { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0; }
+        .legend { background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 14px; }
+        .legend-title { font-weight: 600; margin-bottom: 8px; color: #333; }
+        .legend-item { display: inline-block; margin-right: 15px; padding: 4px 10px; border-radius: 4px; margin-bottom: 5px; }
+        .legend-error-over { background: #ffebee; border: 2px solid #f44336; color: #f44336; font-weight: 600; }
+        .legend-error-under { background: #fff3e0; border: 2px solid #ff9800; color: #ff9800; font-weight: 600; }
+        .score-box { background: #e3f2fd; border: 2px solid #2196f3; border-radius: 8px; padding: 12px; margin-top: 15px; text-align: center; }
+        .score-label { font-size: 16px; color: #1565c0; font-weight: 600; }
+        .score-value { font-size: 20px; color: #0d47a1; font-weight: bold; }
+    
+        /* Modal Duplicati */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.visible { display: flex; }
+        .modal-content { background: white; border-radius: 15px; padding: 30px; max-width: 800px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e0e0e0; }
+        .modal-title { font-size: 24px; font-weight: 600; color: #333; }
+        .modal-close { background: #f0f0f0; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; transition: background 0.3s; }
+        .modal-close:hover { background: #e0e0e0; }
+        .duplicato-group { background: #f9f9f9; border-left: 4px solid #ff9800; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+        .duplicato-originale { font-weight: 600; color: #28a745; margin-bottom: 8px; }
+        .duplicato-lista { color: #dc3545; font-size: 14px; }
+        .modal-actions { margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0; display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-warning { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>✨ Genera Menu Settimanale</h1>
+            <div class="header-buttons">
+                <a href="/valida_csv" class="back-btn">🔍 Valida CSV</a>
+                <a href="/ingredienti" class="back-btn">🛒 Lista Spesa</a>
+                <a href="/admin" class="back-btn">📊 Statistiche</a>
+                <a href="/" class="back-btn">← Menu</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="info-card">
+            <h2 class="info-title">📅 Generatore Menu Settimanali Bilanciati con Valutazioni</h2>
+            <p class="info-text">
+                Genera menu 7 giorni che rispetta le frequenze nutrizionali. I piatti sono ordinati per valutazione degli utenti.
+            </p>
+            <p class="info-text">
+                <strong>Nuovo:</strong> Visualizza lo score complessivo del menu e le valutazioni di ogni piatto!
+            </p>
+
+            <div class="form-group">
+                <label for="dataInizio">Data di Inizio (Lunedì):</label>
+                <input type="date" id="dataInizio">
+            </div>
+
+            <button onclick="generaMenuSettimanale()" class="btn btn-success" id="btnGenera">
+                ✨ Genera Menu Settimanale
+            </button>
+
+            <button onclick="analizzaDuplicati()" class="btn btn-warning" id="btnDeduplica" style="margin-left: 10px;">
+                🔍 Trova e Rimuovi Duplicati
+            </button>
+        </div>
+
+        <div id="menuPreviewCard" class="menu-preview">
+            <h2 class="info-title">📋 Anteprima Menu</h2>
+
+            <div class="legend">
+                <div class="legend-title">📌 Legenda:</div>
+                <span class="legend-item legend-error-over">🔴 Categoria in eccesso</span>
+                <span class="legend-item legend-error-under">🟠 Categoria insufficiente</span>
+            </div>
+
+            <div class="error-banner" id="errorBanner">
+                <div class="error-banner-title">⚠️ Attenzione: Frequenze Non Conformi</div>
+                <div class="error-banner-text" id="errorBannerText"></div>
+            </div>
+
+            <div id="menuPreview"></div>
+
+            <div class="action-buttons">
+                <button onclick="generaMenuSettimanale()" class="btn btn-primary">
+                    🔄 Rigenera Menu
+                </button>
+                <button onclick="salvaMenu()" class="btn btn-success" id="btnSalva">
+                    💾 Salva nel Database
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Modal Duplicati -->
+    <div id="modalDuplicati" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🔍 Analisi Duplicati</h2>
+                <button class="modal-close" onclick="chiudiModalDuplicati()">×</button>
+            </div>
+
+            <div id="duplicatiContent">
+                <!-- Contenuto dinamico -->
+            </div>
+
+            <div class="modal-actions" id="modalActions">
+                <!-- Pulsanti dinamici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let menuCorrente = null;
+        let tuttiPiatti = [];
+
+        const SCHEMA = {
+            'legumi': {min: 2, max: 2, label: 'Legumi'},
+            'uova': {min: 0, max: 2, label: 'Uova'},
+            'carne_bianca': {min: 0, max: 3, label: 'Carne bianca'},
+            'carne_rossa': {min: 0, max: 2, label: 'Carne rossa'},
+            'formaggi_freschi': {min: 0, max: 3, label: 'Formaggi freschi'},
+            'formaggi_stagionati': {min: 0, max: 1, label: 'Formaggi stagionati'},
+            'pesce_bianco': {min: 2, max: 4, label: 'Pesce bianco'},
+            'pesce_grasso': {min: 0, max: 1, label: 'Pesce grasso'},
+            'crostacei_molluschi': {min: 0, max: 1, label: 'Crostacei/molluschi'},
+            'tonno_scatola': {min: 0, max: 1, label: 'Tonno in scatola'},
+            'affettati': {min: 0, max: 1, label: 'Affettati'}
+        };
+
+        function calcolaProssimoLunedi() {
+            const oggi = new Date();
+            const giorno = oggi.getDay();
+            const giorniDaLunedi = giorno === 0 ? 1 : (8 - giorno);
+            const prossimoLunedi = new Date(oggi);
+            prossimoLunedi.setDate(oggi.getDate() + giorniDaLunedi);
+            return prossimoLunedi.toISOString().split('T')[0];
+        }
+
+        document.getElementById('dataInizio').value = calcolaProssimoLunedi();
+
+        async function generaMenuSettimanale() {
+            const btn = document.getElementById('btnGenera');
+            btn.disabled = true;
+            btn.textContent = '⏳ Generazione in corso...';
+
+            try {
+                const response = await fetch('/api/genera_menu_settimanale', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    menuCorrente = data;
+                    document.getElementById('dataInizio').value = data.data_inizio;
+                    await caricaTuttiPiatti();
+                    mostraPreview(data);
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('❌ Errore nella generazione del menu: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ Genera Menu Settimanale';
+            }
+        }
+
+        async function caricaTuttiPiatti() {
+            try {
+                const response = await fetch('/api/piatti_per_categoria');
+                const data = await response.json();
+
+                if (data.success) {
+                    tuttiPiatti = [];
+                    for (const cat in data.piatti) {
+                        tuttiPiatti = tuttiPiatti.concat(data.piatti[cat]);
+                    }
+
+                    // ORDINA: prima per score (decrescente), poi alfabeticamente
+                    tuttiPiatti.sort((a, b) => {
+                        const scoreDiff = (b.score || 0) - (a.score || 0);
+                        if (scoreDiff !== 0) return scoreDiff;
+                        return a.nome.localeCompare(b.nome);
+                    });
+                }
+            } catch (error) {
+                console.error('Errore caricamento piatti:', error);
+            }
+        }
+
+        function calcolaScoreComplessivoMenu() {
+            if (!menuCorrente || !menuCorrente.menu) return {score: 0, count: 0};
+
+            let sommaScore = 0;
+            let countPiatti = 0;
+
+            menuCorrente.menu.forEach(giorno => {
+                const piattoPranzo = tuttiPiatti.find(p => p.id === giorno.pranzo.id);
+                if (piattoPranzo && piattoPranzo.num_voti > 0) {
+                    sommaScore += piattoPranzo.score;
+                    countPiatti++;
+                }
+
+                const piattoCena = tuttiPiatti.find(p => p.id === giorno.cena.id);
+                if (piattoCena && piattoCena.num_voti > 0) {
+                    sommaScore += piattoCena.score;
+                    countPiatti++;
+                }
+            });
+
+            return {
+                score: countPiatti > 0 ? (sommaScore / countPiatti).toFixed(2) : 0,
+                count: countPiatti
+            };
+        }
+
+        function ricalcolaFrequenze() {
+            const conteggi = {};
+            for (const cat in SCHEMA) conteggi[cat] = 0;
+
+            if (!menuCorrente || !menuCorrente.menu) return conteggi;
+
+            menuCorrente.menu.forEach(giorno => {
+                const catPranzo = giorno.pranzo.categoria_proteica;
+                const catCena = giorno.cena.categoria_proteica;
+
+                if (catPranzo && conteggi.hasOwnProperty(catPranzo)) conteggi[catPranzo]++;
+                if (catCena && conteggi.hasOwnProperty(catCena)) conteggi[catCena]++;
+            });
+
+            return conteggi;
+        }
+
+        function verificaConformita(conteggi) {
+            const errori = [];
+            const categorieEccesso = [];
+            const categorieInsufficienza = [];
+
+            for (const [cat, limiti] of Object.entries(SCHEMA)) {
+                const count = conteggi[cat] || 0;
+
+                if (count < limiti.min) {
+                    errori.push(`${limiti.label}: ${count} (minimo ${limiti.min})`);
+                    categorieInsufficienza.push(cat);
+                } else if (count > limiti.max) {
+                    errori.push(`${limiti.label}: ${count} (massimo ${limiti.max})`);
+                    categorieEccesso.push(cat);
+                }
+            }
+
+            return { errori, categorieEccesso, categorieInsufficienza };
+        }
+
+        function evidenziaPastiProblematici(categorieEccesso, categorieInsufficienza) {
+            document.querySelectorAll('.meal-row').forEach(row => {
+                row.classList.remove('meal-error-over', 'meal-error-under');
+            });
+
+            menuCorrente.menu.forEach((giorno, idx) => {
+                const pranzoRow = document.getElementById(`meal_p_${idx}`);
+                const cenaRow = document.getElementById(`meal_c_${idx}`);
+
+                if (pranzoRow) {
+                    const catPranzo = giorno.pranzo.categoria_proteica;
+                    if (categorieEccesso.includes(catPranzo)) pranzoRow.classList.add('meal-error-over');
+                    else if (categorieInsufficienza.includes(catPranzo)) pranzoRow.classList.add('meal-error-under');
+                }
+
+                if (cenaRow) {
+                    const catCena = giorno.cena.categoria_proteica;
+                    if (categorieEccesso.includes(catCena)) cenaRow.classList.add('meal-error-over');
+                    else if (categorieInsufficienza.includes(catCena)) cenaRow.classList.add('meal-error-under');
+                }
+            });
+        }
+
+        function aggiornaReportFrequenze() {
+            const conteggi = ricalcolaFrequenze();
+            const { errori, categorieEccesso, categorieInsufficienza } = verificaConformita(conteggi);
+
+            let html = '<h3 style="margin-bottom: 10px;">📊 Verifica Frequenze Settimanali</h3>';
+
+            for (const [cat, limiti] of Object.entries(SCHEMA)) {
+                const count = conteggi[cat] || 0;
+                const target = limiti.min === limiti.max ? limiti.min : `${limiti.min}-${limiti.max}`;
+                const classe = (count < limiti.min || count > limiti.max) ? 'freq-error' : 'freq-ok';
+                const icona = (count < limiti.min || count > limiti.max) ? '❌' : '✅';
+
+                html += `<div class="frequency-item">
+                    <span>${icona} ${limiti.label}</span>
+                    <span class="${classe}">${count} / ${target}</span>
+                </div>`;
+            }
+
+            const reportDiv = document.querySelector('.frequencies-report');
+            if (reportDiv) {
+                reportDiv.innerHTML = html;
+
+                // SCORE COMPLESSIVO DEL MENU
+                const {score, count} = calcolaScoreComplessivoMenu();
+                const scoreHtml = `
+                    <div class="score-box">
+                        <span class="score-label">📊 Score Complessivo Menu: </span>
+                        <span class="score-value">${score > 0 ? '⭐ ' + score + '/5' : 'N/A'}</span>
+                        ${count > 0 ? '<div style="font-size: 12px; color: #666; margin-top: 5px;">(Media di ' + count + ' piatti votati)</div>' : ''}
+                    </div>
+                `;
+                reportDiv.innerHTML += scoreHtml;
+
+                const errorBanner = document.getElementById('errorBanner');
+                const errorBannerText = document.getElementById('errorBannerText');
+
+                if (errori.length > 0) {
+                    reportDiv.classList.add('has-errors');
+                    errorBanner.classList.add('visible');
+                    errorBannerText.innerHTML = 'Il menu presenta le seguenti difformità:<br><br>' +
+                        '<ul style="margin-left: 20px;">' +
+                        errori.map(e => `<li>${e}</li>`).join('') +
+                        '</ul><br>' +
+                        '<strong>I pasti problematici sono evidenziati in rosso (eccesso) o arancione (insufficienza).</strong>';
+                } else {
+                    reportDiv.classList.remove('has-errors');
+                    errorBanner.classList.remove('visible');
+                }
+
+                evidenziaPastiProblematici(categorieEccesso, categorieInsufficienza);
+            }
+        }
+
+        function mostraPreview(data) {
+            const preview = document.getElementById('menuPreview');
+            const card = document.getElementById('menuPreviewCard');
+
+            if (!preview || !card) return;
+
+            let html = '<div class="frequencies-report"></div>';
+
+            data.menu.forEach((giorno, idx) => {
+                html += `<div class="day-card">
+                    <div class="day-header">
+                        <div class="day-name">${giorno.giorno}</div>
+                        <div class="day-date" id="date_${idx}">${formatDate(giorno.data)}</div>
+                    </div>
+
+                    <div class="meal-row" id="meal_p_${idx}">
+                        <div class="meal-label">🍽️ Pranzo</div>
+                        <div class="meal-info">
+                            <div id="nome_p_${idx}">${giorno.pranzo.nome}</div>
+                            <div class="meal-category" id="cat_p_${idx}">${giorno.pranzo.categoria_proteica}</div>
+                        </div>
+                        <select id="sel_p_${idx}" onchange="cambiaPiatto(${idx}, 'pranzo')">
+                            ${opzioniTuttiPiatti(giorno.pranzo.id)}
+                        </select>
+                    </div>
+
+                    <div class="meal-row" id="meal_c_${idx}">
+                        <div class="meal-label">🌙 Cena</div>
+                        <div class="meal-info">
+                            <div id="nome_c_${idx}">${giorno.cena.nome}</div>
+                            <div class="meal-category" id="cat_c_${idx}">${giorno.cena.categoria_proteica}</div>
+                        </div>
+                        <select id="sel_c_${idx}" onchange="cambiaPiatto(${idx}, 'cena')">
+                            ${opzioniTuttiPiatti(giorno.cena.id)}
+                        </select>
+                    </div>
+                </div>`;
+            });
+
+            preview.innerHTML = html;
+            card.classList.add('visible');
+            aggiornaReportFrequenze();
+            setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+        }
+
+        function opzioniTuttiPiatti(idSelezionato) {
+            if (tuttiPiatti.length === 0) return '<option>Caricamento...</option>';
+
+            let html = '';
+            tuttiPiatti.forEach(piatto => {
+                const selected = piatto.id == idSelezionato ? 'selected' : '';
+                const cat = piatto.categoria_proteica || 'N/A';
+                const score = piatto.score || 0;
+                const numVoti = piatto.num_voti || 0;
+
+                // Formato: "Nome (categoria) ⭐ 4.5 (12 voti)"
+                const scoreText = numVoti > 0 ? ` ⭐ ${score.toFixed(1)} (${numVoti} voti)` : ' (nessun voto)';
+
+                html += `<option value="${piatto.id}" ${selected}>${piatto.nome} (${cat})${scoreText}</option>`;
+            });
+            return html;
+        }
+
+        function cambiaPiatto(giornoIdx, tipo) {
+            const select = document.getElementById(`sel_${tipo[0]}_${giornoIdx}`);
+            const nuovoId = parseInt(select.value);
+            const piatto = tuttiPiatti.find(p => p.id === nuovoId);
+
+            if (piatto) {
+                menuCorrente.menu[giornoIdx][tipo].id = piatto.id;
+                menuCorrente.menu[giornoIdx][tipo].nome = piatto.nome;
+                menuCorrente.menu[giornoIdx][tipo].categoria_proteica = piatto.categoria_proteica;
+
+                document.getElementById(`nome_${tipo[0]}_${giornoIdx}`).textContent = piatto.nome;
+                document.getElementById(`cat_${tipo[0]}_${giornoIdx}`).textContent = piatto.categoria_proteica;
+
+                aggiornaReportFrequenze();
+            }
+        }
+
+        async function salvaMenu() {
+            if (!menuCorrente) {
+                alert('❌ Nessun menu da salvare!');
+                return;
+            }
+
+            const dataInizio = document.getElementById('dataInizio').value;
+            if (!dataInizio) {
+                alert('❌ Seleziona una data di inizio!');
+                return;
+            }
+
+            const data = new Date(dataInizio);
+            menuCorrente.menu.forEach((giorno, idx) => {
+                const nuovaData = new Date(data);
+                nuovaData.setDate(data.getDate() + idx);
+                menuCorrente.menu[idx].data = nuovaData.toISOString().split('T')[0];
+            });
+
+            const conteggi = ricalcolaFrequenze();
+            const { errori } = verificaConformita(conteggi);
+
+            let messaggio = '💾 Salvare questo menu nel database?';
+
+            if (errori.length > 0) {
+                messaggio = '⚠️ ATTENZIONE: Difformità dallo schema:\n\n' +
+                    errori.join('\n') + 
+                    '\n\nVuoi salvare comunque?';
+            }
+
+            if (!confirm(messaggio)) return;
+
+            try {
+                const response = await fetch('/api/salva_menu_settimanale', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({menu: menuCorrente.menu})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ ' + data.messaggio);
+                    window.location.href = '/';
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                alert('❌ Errore nel salvataggio');
+            }
+        }
+
+        function formatDate(dataISO) {
+            const [anno, mese, giorno] = dataISO.split('-');
+            return `${giorno}/${mese}/${anno}`;
+        }
+    
+
+        // ========================================================================
+        // GESTIONE DUPLICATI
+        // ========================================================================
+
+        let duplicatiTrovati = null;
+
+        async function analizzaDuplicati() {
+            const btn = document.getElementById('btnDeduplica');
+            btn.disabled = true;
+            btn.textContent = '⏳ Analisi in corso...';
+
+            try {
+                const response = await fetch('/api/analizza_duplicati', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    duplicatiTrovati = data;
+                    mostraModalDuplicati(data);
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Errore sconosciuto'));
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('❌ Errore durante l\'analisi: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 Trova e Rimuovi Duplicati';
+            }
+        }
+
+        function mostraModalDuplicati(data) {
+            const modal = document.getElementById('modalDuplicati');
+            const content = document.getElementById('duplicatiContent');
+            const actions = document.getElementById('modalActions');
+
+            if (data.num_duplicati === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #28a745;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                        <h3>Nessun Duplicato Trovato!</h3>
+                        <p style="color: #666; margin-top: 10px;">
+                            Il database contiene ${data.totale_piatti} piatti unici.
+                        </p>
+                    </div>
+                `;
+
+                actions.innerHTML = `
+                    <button class="btn btn-primary" onclick="chiudiModalDuplicati()">Chiudi</button>
+                `;
+            } else {
+                let html = `
+                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                        <strong>⚠️ Attenzione:</strong> Trovati <strong>${data.num_duplicati}</strong> piatti duplicati in <strong>${data.gruppi_duplicati}</strong> gruppi.
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; color: #333; margin-bottom: 15px;">📋 Dettagli Duplicati</h3>
+                `;
+
+                data.duplicati.forEach((dup, idx) => {
+                    html += `
+                        <div class="duplicato-group">
+                            <div class="duplicato-originale">
+                                ✅ ID ${dup.originale} - "${dup.nome}" - Verrà MANTENUTO
+                            </div>
+                            <div class="duplicato-lista">
+                                ❌ ID da rimuovere: ${dup.duplicati.join(', ')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 12px; border-radius: 8px; margin-top: 15px;">
+                        <strong>ℹ️ Nota:</strong> Verrà creato un backup automatico prima della rimozione.
+                    </div>
+                `;
+
+                content.innerHTML = html;
+
+                actions.innerHTML = `
+                    <button class="btn btn-primary" onclick="chiudiModalDuplicati()">Annulla</button>
+                    <button class="btn btn-danger" onclick="rimuoviDuplicati()">
+                        🗑️ Rimuovi ${data.num_duplicati} Duplicati
+                    </button>
+                `;
+            }
+
+            modal.classList.add('visible');
+        }
+
+        function chiudiModalDuplicati() {
+            const modal = document.getElementById('modalDuplicati');
+            modal.classList.remove('visible');
+            duplicatiTrovati = null;
+        }
+
+        async function rimuoviDuplicati() {
+            if (!duplicatiTrovati || !duplicatiTrovati.duplicati) {
+                alert('Nessun duplicato da rimuovere');
+                return;
+            }
+
+            if (!confirm(`Confermi la rimozione di ${duplicatiTrovati.num_duplicati} piatti duplicati?\n\nVerrà creato un backup automatico del database.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/rimuovi_duplicati', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        duplicati: duplicatiTrovati.duplicati
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✅ ${data.messaggio}\n\n📊 Piatti prima: ${data.totale_prima}\n📊 Piatti dopo: ${data.totale_dopo}\n\n💾 Backup: ${data.backup}`);
+                    chiudiModalDuplicati();
+
+                    // Ricarica la pagina per aggiornare i dati
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    alert('❌ Errore: ' + (data.error || data.messaggio));
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('❌ Errore durante la rimozione: ' + error.message);
+            }
+        }
+
+    </script>
+</body>
+</html>

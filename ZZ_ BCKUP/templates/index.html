@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <title>Menu del Giorno</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .date-selector {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+        
+        .date-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .date-selector select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .info-box {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .info-box.error {
+            background: #fee;
+            color: #c33;
+        }
+        
+        .info-box.admin-notice {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .category-section {
+            margin-bottom: 30px;
+        }
+        
+        .category-title {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-left: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .piatto-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: box-shadow 0.3s;
+        }
+        
+        .piatto-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        
+        .piatto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .piatto-nome {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+        
+        .piatto-prezzo {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        
+        .piatto-descrizione {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .ricetta-section {
+            background: #f9f9f9;
+            border-left: 3px solid #667eea;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .ricetta-section.visible {
+            display: block;
+        }
+        
+        .ricetta-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .ricetta-text {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .ricetta-btn {
+            background: #f0f0f0;
+            color: #667eea;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background 0.3s;
+        }
+        
+        .ricetta-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .voted-badge {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .rating-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .star {
+            font-size: 36px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            user-select: none;
+        }
+        
+        .star:hover {
+            transform: scale(1.15);
+        }
+        
+        .star:active {
+            transform: scale(0.95);
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .vote-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .vote-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .vote-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="user-info">
+            <span class="user-name">👋 Ciao, <strong>{{ username }}</strong></span>
+            <div class="header-buttons">
+                {% if username == 'admin' %}
+                <a href="/valida_csv" class="logout-btn">🔍 Valida CSV</a>
+                <a href="/ingredienti" class="logout-btn">🛒 Lista Spesa</a>
+                <a href="/admin" class="logout-btn">📊 Statistiche</a>
+                {% endif %}
+                <button class="logout-btn" onclick="logout()">Esci</button>
+            </div>
+        </div>
+        <h1>🍽️ Menu del Giorno</h1>
+        
+        <div class="date-selector">
+            <label for="dataMenu">📅 Seleziona data:</label>
+            <select id="dataMenu" onchange="cambiaData()">
+                <option value="">Caricamento...</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="container" id="menuContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            Caricamento menu...
+        </div>
+    </div>
+    
+    <script>
+        let menuData = null;
+        let myVotes = {};
+        let currentDate = new Date().toISOString().split('T')[0];
+        const isAdmin = '{{ username }}' === 'admin';
+        
+        async function loadAvailableDates() {
+            try {
+                const response = await fetch('/api/date_disponibili');
+                const data = await response.json();
+                
+                const select = document.getElementById('dataMenu');
+                select.innerHTML = '';
+                
+                if (data.date && data.date.length > 0) {
+                    data.date.forEach(date => {
+                        const option = document.createElement('option');
+                        option.value = date;
+                        option.textContent = formatDateItalian(date);
+                        if (date === currentDate) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+                } else {
+                    select.innerHTML = '<option value="">Nessuna data disponibile</option>';
+                }
+            } catch (error) {
+                console.error('Errore caricamento date:', error);
+            }
+        }
+        
+        async function loadMenu(data = null) {
+            try {
+                const url = data ? `/api/menu?data=${data}` : '/api/menu';
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                menuData = await response.json();
+                currentDate = menuData.data;
+                
+                if (!isAdmin) {
+                    await loadMyVotes(currentDate);
+                }
+                
+                renderMenu();
+            } catch (error) {
+                console.error('Errore caricamento menu:', error);
+                document.getElementById('menuContainer').innerHTML = 
+                    '<div class="info-box error">Errore di caricamento. Ricarica la pagina.</div>';
+            }
+        }
+        
+        async function loadMyVotes(data) {
+            try {
+                const response = await fetch(`/api/miei_voti?data=${data}`);
+                const votes = await response.json();
+                myVotes = votes;
+            } catch (error) {
+                console.error('Errore caricamento voti:', error);
+            }
+        }
+        
+        function formatDateItalian(dateString) {
+            if (!dateString) return 'Data non valida';
+            
+            try {
+                const parts = dateString.split('-');
+                if (parts.length !== 3) return dateString;
+                
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const day = parseInt(parts[2]);
+                
+                const date = new Date(year, month, day);
+                
+                if (isNaN(date.getTime())) {
+                    return dateString;
+                }
+                
+                return date.toLocaleDateString('it-IT', { 
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            } catch (e) {
+                console.error('Errore formattazione data:', e);
+                return dateString;
+            }
+        }
+        
+        function toggleRicetta(piattoId) {
+            const ricettaDiv = document.getElementById(`ricetta-${piattoId}`);
+            const button = document.getElementById(`ricetta-btn-${piattoId}`);
+            
+            if (ricettaDiv.classList.contains('visible')) {
+                ricettaDiv.classList.remove('visible');
+                button.textContent = '📖 Vedi ricetta';
+            } else {
+                ricettaDiv.classList.add('visible');
+                button.textContent = '📖 Nascondi ricetta';
+            }
+        }
+        
+        function renderMenu() {
+            const container = document.getElementById('menuContainer');
+            
+            if (menuData.error) {
+                container.innerHTML = `<div class="info-box error">${menuData.error}</div>`;
+                return;
+            }
+            
+            if (!menuData.piatti || menuData.piatti.length === 0) {
+                container.innerHTML = `
+                    <div class="info-box">
+                        📭 Nessun piatto disponibile per ${formatDateItalian(menuData.data)}
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            // Messaggio per admin
+            if (isAdmin) {
+                html += `
+                    <div class="info-box admin-notice">
+                        👨‍💼 <strong>Modalità Admin:</strong> Visualizzazione solo menu (senza votazioni)
+                    </div>
+                `;
+            }
+            
+            const categories = {};
+            
+            menuData.piatti.forEach(piatto => {
+                if (!categories[piatto.categoria]) {
+                    categories[piatto.categoria] = [];
+                }
+                categories[piatto.categoria].push(piatto);
+            });
+            
+            for (const [categoria, piatti] of Object.entries(categories)) {
+                html += `
+                    <div class="category-section">
+                        <h2 class="category-title">${categoria}</h2>
+                        ${piatti.map(piatto => renderPiatto(piatto)).join('')}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function renderPiatto(piatto) {
+            const voted = myVotes[piatto.id];
+            const currentRating = voted ? voted.voto : 0;
+            const currentComment = voted ? voted.commento : '';
+            const hasRicetta = piatto.ricetta && piatto.ricetta.length > 0;
+            
+            // Versione semplificata per admin (solo visualizzazione)
+            if (isAdmin) {
+                return `
+                    <div class="piatto-card">
+                        <div class="piatto-header">
+                            <div class="piatto-nome">${piatto.nome}</div>
+                            <div class="piatto-prezzo">${piatto.prezzo}</div>
+                        </div>
+                        <div class="piatto-descrizione">${piatto.descrizione}</div>
+                        
+                        ${hasRicetta ? `
+                            <button class="ricetta-btn" id="ricetta-btn-${piatto.id}" onclick="toggleRicetta(${piatto.id})">
+                                📖 Vedi ricetta
+                            </button>
+                            <div class="ricetta-section" id="ricetta-${piatto.id}">
+                                <div class="ricetta-title">📖 Ricetta:</div>
+                                <div class="ricetta-text">${piatto.ricetta}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            // Versione completa per utenti normali (con votazioni)
+            return `
+                <div class="piatto-card">
+                    <div class="piatto-header">
+                        <div class="piatto-nome">${piatto.nome}</div>
+                        <div class="piatto-prezzo">${piatto.prezzo}</div>
+                    </div>
+                    <div class="piatto-descrizione">${piatto.descrizione}</div>
+                    
+                    ${hasRicetta ? `
+                        <button class="ricetta-btn" id="ricetta-btn-${piatto.id}" onclick="toggleRicetta(${piatto.id})">
+                            📖 Vedi ricetta
+                        </button>
+                        <div class="ricetta-section" id="ricetta-${piatto.id}">
+                            <div class="ricetta-title">📖 Ricetta:</div>
+                            <div class="ricetta-text">${piatto.ricetta}</div>
+                        </div>
+                    ` : ''}
+                    
+                    ${voted ? `<div class="voted-badge">✓ Hai già votato: ${voted.voto}⭐</div>` : ''}
+                    
+                    <div class="rating-container" id="rating-${piatto.id}" data-rating="${currentRating}">
+                        ${[1,2,3,4,5].map(star => `
+                            <span class="star" onclick="setRating(${piatto.id}, ${star})">
+                                ${star <= currentRating ? '⭐' : '☆'}
+                            </span>
+                        `).join('')}
+                    </div>
+                    
+                    <input type="text" 
+                           class="comment-input" 
+                           id="comment-${piatto.id}" 
+                           placeholder="Aggiungi un commento (opzionale)..."
+                           value="${currentComment}">
+                    
+                    <button class="vote-btn" 
+                            id="btn-${piatto.id}" 
+                            onclick="submitVote(${piatto.id})"
+                            ${currentRating === 0 ? 'disabled' : ''}>
+                        ${voted ? '✏️ Aggiorna voto' : '📝 Invia voto'}
+                    </button>
+                </div>
+            `;
+        }
+        
+        function setRating(piattoId, rating) {
+            if (isAdmin) return; // Admin non può votare
+            
+            const container = document.getElementById(`rating-${piattoId}`);
+            const stars = container.querySelectorAll('.star');
+            
+            stars.forEach((star, index) => {
+                star.textContent = index < rating ? '⭐' : '☆';
+            });
+            
+            container.dataset.rating = rating;
+            document.getElementById(`btn-${piattoId}`).disabled = false;
+        }
+        
+        async function submitVote(piattoId) {
+            if (isAdmin) return; // Admin non può votare
+            
+            const ratingContainer = document.getElementById(`rating-${piattoId}`);
+            const rating = parseInt(ratingContainer.dataset.rating);
+            const comment = document.getElementById(`comment-${piattoId}`).value.trim();
+            const button = document.getElementById(`btn-${piattoId}`);
+            
+            if (!rating || rating < 1) {
+                alert('⚠️ Seleziona un voto prima di inviare!');
+                return;
+            }
+            
+            button.textContent = 'Invio in corso...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/vota', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        piatto_id: piattoId,
+                        voto: rating,
+                        commento: comment,
+                        data_menu: currentDate
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    await loadMenu(currentDate);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => {
+                        alert('✅ Voto salvato con successo!');
+                    }, 300);
+                } else if (data.error) {
+                    alert('❌ ' + data.error);
+                    button.textContent = '📝 Invia voto';
+                    button.disabled = false;
+                }
+            } catch (error) {
+                alert('❌ Errore durante il salvataggio. Riprova.');
+                button.textContent = '📝 Invia voto';
+                button.disabled = false;
+            }
+        }
+        
+        function cambiaData() {
+            const select = document.getElementById('dataMenu');
+            const dataSelezionata = select.value;
+            if (dataSelezionata) {
+                loadMenu(dataSelezionata);
+            }
+        }
+        
+        function logout() {
+            if (confirm('Vuoi davvero uscire?')) {
+                window.location.href = '/logout';
+            }
+        }
+        
+        // Inizializzazione
+        loadAvailableDates();
+        loadMenu();
+    </script>
+</body>
+</html>

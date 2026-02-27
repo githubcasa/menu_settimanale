@@ -1,0 +1,78 @@
+{
+  "mario_1_2026-02-15": {
+    "piatto_id": 1,
+    "voto": 3,
+    "commento": "Prova commeto",
+    "username": "mario",
+    "timestamp": "2026-02-15T09:02:44.470442"
+  },
+  "admin_1_2026-02-15": {
+    "piatto_id": 1,
+    "voto": 3,
+    "commento": "Pippo",
+    "username": "admin",
+    "timestamp": "2026-02-15T09:14:02.300086"
+  },
+  "riccardo_1_2026-02-15": {
+    "piatto_id": 1,
+    "voto": 3,
+    "commento": "prova",
+    "username": "riccardo",
+    "data_menu": "2026-02-15",
+    "timestamp": "2026-02-15T10:23:30.391627"
+  },
+  "riccardo_2_2026-02-15": {
+    "piatto_id": 2,
+    "voto": 5,
+    "commento": "prova voto 2",
+    "username": "riccardo",
+    "timestamp": "2026-02-15T09:15:31.338319"
+  },
+  "riccardo_3_2026-02-15": {
+    "piatto_id": 3,
+    "voto": 1,
+    "commento": "prova voto negativo",
+    "username": "riccardo",
+    "timestamp": "2026-02-15T09:15:45.076916"
+  },
+  "admin_4_2026-02-16": {
+    "piatto_id": 4,
+    "voto": 2,
+    "commento": "poppolo",
+    "username": "admin",
+    "data_menu": "2026-02-16",
+    "timestamp": "2026-02-15T10:23:00.118625"
+  },
+  "riccardo_4_2026-02-16": {
+    "piatto_id": 4,
+    "voto": 2,
+    "commento": "",
+    "username": "riccardo",
+    "data_menu": "2026-02-16",
+    "timestamp": "2026-02-15T10:30:11.878448"
+  },
+  "umberto_1_2026-02-15": {
+    "piatto_id": 1,
+    "voto": 3,
+    "commento": "Da cuocere meglio",
+    "username": "umberto",
+    "data_menu": "2026-02-15",
+    "timestamp": "2026-02-15T11:59:56.040679"
+  },
+  "riccardo_49_2026-02-15": {
+    "piatto_id": 49,
+    "voto": 4,
+    "commento": "",
+    "username": "riccardo",
+    "data_menu": "2026-02-15",
+    "timestamp": "2026-02-15T16:21:31.618850"
+  },
+  "riccardo_51_2026-02-16": {
+    "piatto_id": 51,
+    "voto": 3,
+    "commento": "",
+    "username": "riccardo",
+    "data_menu": "2026-02-16",
+    "timestamp": "2026-02-16T11:01:38.068453"
+  }
+}
