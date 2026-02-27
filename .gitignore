@@ -1,6 +1,8 @@
 __pycache__/
 *.pyc
 .env
-ZZ_BCKUP/
+ZZ_ BCKUP/
 ZZ_BCKUP2/
 *.old
+ZZ_*/
+menu_database_backup_*/

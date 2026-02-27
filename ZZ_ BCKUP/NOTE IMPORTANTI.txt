@@ -1,7 +1,0 @@
-Nel file del menu CVS:
-
-- Usa il carattere | (pipe/barra verticale) per separare ingredienti e quantità
-
-- NON usare ; dentro ingredienti/quantità perché è il separatore del CSV
-
-- Gli ingredienti e le quantità devono avere lo stesso numero di elementi
