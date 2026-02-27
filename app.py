@@ -381,7 +381,20 @@ def login():
             return jsonify({'success': True})
         return jsonify({'success': False, 'message': 'Credenziali non valide'})
     
-    return render_template('login.html')
+    # === TEST_RICCARDO_START (DA RIMUOVERE) ===
+    html = render_template('login.html')
+
+    banner = '<div style="margin: 12px 0; font-weight: 700; text-align: center;">RICCARDO</div>'
+
+    # Inserisci il banner subito dopo il tag <body ...> (se presente)
+    html2, n = re.subn(r'(<body[^>]*>)', r'\1\n' + banner, html, count=1, flags=re.IGNORECASE)
+
+    # Fallback: se non trova <body>, aggiunge il banner in testa alla pagina
+    if n == 0:
+        html2 = banner + html
+
+    return html2
+    # === TEST_RICCARDO_END (DA RIMUOVERE) ===
 
 @app.route('/logout')
 def logout():
